@@ -6,7 +6,6 @@
 package util;
 
 
-import com.sistex.cdp.Item;
 import com.sistex.cdp.Pedido;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class Pedidos {
     /**
      * @param pedidos the pedidos to set
      */
-    public void setPedidos(List<Item> pedidos) {
+    public void setPedidos(List<Pedido> pedidos) {
         this.pedidos =  new ArrayList(pedidos);
     }
     

@@ -50,12 +50,7 @@ public class Funcionario extends ItemAbstract{
         this.matricula = matricula;
     }
     
-    @Override
-    public  String[] getAtributos(){
-        String vetor[] = {"matricula","rg","nome","senha"};
-        return vetor;
-    }
-    
+ 
     @Override
     public String toString(){
         return matricula+" "+nome+" "+rg+" "+senha;
@@ -117,6 +112,12 @@ public class Funcionario extends ItemAbstract{
         this.clientes = clientes;
     }
 
-   
+    public boolean equals(Object o){
+        Funcionario funcionario = (Funcionario) o;
+        return funcionario.getNome().equals(nome) &&
+                funcionario.getMatricula().equals(matricula) &&
+                funcionario.getRg().equals(rg) &&
+                funcionario.getSenha().equals(senha);
+    }
     
 }

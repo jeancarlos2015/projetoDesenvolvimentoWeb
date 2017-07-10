@@ -10,5 +10,5 @@ package padroes;
  * @author jean
  */
 public enum Tipo {
-    cliente, produto, pedido, funcionario, none
+    cliente, produto, pedido, funcionario, fornecedor, none
 }

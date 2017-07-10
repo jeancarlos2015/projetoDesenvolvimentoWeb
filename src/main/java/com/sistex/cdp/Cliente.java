@@ -13,7 +13,7 @@ import java.util.List;
  * @author jean
  */
 public class Cliente extends ItemAbstract{
-    private String cpf="12312312312";
+    private String cpf="123";
     private String nome="fulano";
     private int idade=0;
     private String email="fulano@servidor";
@@ -48,11 +48,7 @@ public class Cliente extends ItemAbstract{
         this.email = email;
     }
     
-    @Override
-    public  String[] getAtributos(){
-        String vetor[] = {"cpf","matricula","nome","idade","email","senha"};
-        return vetor;
-    }
+   
     
     
     @Override

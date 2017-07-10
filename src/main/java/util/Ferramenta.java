@@ -5,7 +5,14 @@
  */
 package util;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -40,6 +47,21 @@ public class Ferramenta {
     }
     public int getIdade(){
         return aleatorio.nextInt(80);
+    }
+    
+    
+    public static void fechaSessao(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            if (request.getParameter("operacao").equals("fechasessao")) {
+                HttpSession session = request.getSession();
+                session.setAttribute("usuario", null);
+                response.sendRedirect("acesso.jsp");
+            }
+    }
+    
+    public static String getDate(){
+        Date data = new Date();
+        SimpleDateFormat formatador = new SimpleDateFormat("dd/MM/yyyy");
+        return formatador.format(data);
     }
     
 }

@@ -5,21 +5,19 @@
  */
 package com.sistex.cdp;
 
+import java.util.Objects;
+
 /**
  *
  * @author jean
  */
 public class Fornecedor extends ItemAbstract{
-    private String nome, cnpj, telefone,endereco;
-    public Fornecedor(String tipo) {
+    private String nome="Fulano", cnpj="1234123412", telefone="12312",endereco="teste";
+    public Fornecedor() {
         super("fornecedor");
     }
     
-    @Override
-    public String[] getAtributos(){
-        String[] vetor={"cnpj","nome","telefone","endereco"};
-        return vetor;
-    }
+  
     
     @Override
     public String toString(){
@@ -81,5 +79,23 @@ public class Fornecedor extends ItemAbstract{
         this.endereco = endereco;
     }
     
+    @Override
+    public boolean equals(Object o){
+        Fornecedor fornecedor = (Fornecedor) o;
+        return cnpj.equals(fornecedor.getCnpj())&& 
+                nome.equals(fornecedor.getNome()) && 
+                endereco.equals(fornecedor.getEndereco()) && 
+                telefone.equals(fornecedor.getTelefone());
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + Objects.hashCode(this.nome);
+        hash = 79 * hash + Objects.hashCode(this.cnpj);
+        hash = 79 * hash + Objects.hashCode(this.telefone);
+        hash = 79 * hash + Objects.hashCode(this.endereco);
+        return hash;
+    }
     
 }

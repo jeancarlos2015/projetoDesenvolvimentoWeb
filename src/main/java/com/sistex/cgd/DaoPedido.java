@@ -5,7 +5,6 @@
  */
 package com.sistex.cgd;
 
-import com.sistex.cdp.Item;
 import com.sistex.cdp.Pedido;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,109 +15,137 @@ import static padroes.Tipo.pedido;
  *
  * @author jean
  */
-public class DaoPedido implements Dao{
-    Fabrica f = Fabrica.make(pedido);
-    private final Persistencia conexao = f.criaPersistencia();
-    
-    @Override
-    public boolean cadastrar(Item item) {
-        Pedido p =(Pedido) item;
-        String comando = "INSERT INTO PEDIDO(codigo_pedido, codigo_produto, cpf, descricao, preco_total) VALUES('"+p.getCodigo_pedido()+"','"+p.getCodigo_produto()+"','"+p.getCpf_cliente()+"','"+p.getDescricao()+"',"+p.getPreco_total()+")";
-        return conexao.executar(comando);
-    }
+public class DaoPedido extends DaoAbstract {
+
+    Fabrica fabrica = Fabrica.make(pedido);
+    private final Persistencia persistencia = fabrica.criaPersistencia();
 
     @Override
-    public boolean excluir(Item item) {
+    public boolean cadastrar(Pedido item) {
         Pedido p = (Pedido) item;
-        String comando = "DELETE FROM PEDIDO where codigo_pedido='"+p.getCodigo_pedido()+"' or codigo_produto = '"+p.getCodigo_produto()+"'";
-        return conexao.executar(comando);
+        String comando = "INSERT INTO PEDIDO(codigo_produto, cpf, data_pedido, preco_total, status) VALUES('" + p.getCodigo_produto() + "','" + p.getCpf_cliente() + "','"+p.getData_pedido()+ "'," + p.getPreco() +",'"+p.getStatus()+ "')";
+        return persistencia.executar(comando);
     }
-
-    @Override
-    public List<Item> listar() {
-        Persistencia p = f.criaPersistencia();
-        String vetor[] = p.getValores("SELECT *FROM PEDIDO").split(";");
-        Pedido ped;
-        List<Item> list = new ArrayList<>();
-        for(String pedido:vetor){
-            String str[] = pedido.split(",");
-            ped= new Pedido();
-            ped.setCodigo_pedido(str[0]);
-            ped.setCodigo_produto(str[1]);
-            ped.setCpf_cliente(str[2]);
-            ped.setDescricao(str[3]);
-            ped.setPreco(str[4]);
-            list.add(ped);
-        }
-        return list;
-    }
-
-    @Override
-    public boolean existe(Item item) {
-        Persistencia p = f.criaPersistencia();
-        Pedido ped = (Pedido) item;
-        String info[] = p.getValores("SELECT codigo_pedido FROM pedido WHERE codigo_pedido='"+ped.getCodigo_pedido()+"'").split(";");
-        Pedido pedido = (Pedido) item;
-        for(String str:info){
-            if(str.equals(pedido.getCodigo_pedido())){
-                return true;
-            }
-        }
-            
-        return false;
-    }
-
     
-   
     @Override
-    public List<Item> listarVinculo(Item item) {
-        Persistencia p = f.criaPersistencia();
-        Pedido pedido1 = (Pedido) item;
-        String vetor[] = p.getValores("SELECT *FROM PEDIDO where codigo_pedido = '"+pedido1.getCodigo_pedido()+"'").split(";");
-        Pedido ped;
-        List<Item> list = new ArrayList<>();
-        for(String pedido:vetor){
+    public Pedido buscar(String codigo_pedido){
+        String vetor[] = persistencia.select("SELECT *FROM PEDIDO where codigo_pedido="+codigo_pedido,"codigo_pedido, codigo_produto, cpf, preco_total, data_pedido, status").split(";");
+        Pedido ped = fabrica.criaPedido();
+        for (String pedido : vetor) {
             String str[] = pedido.split(",");
-            ped= new Pedido();
-            ped.setCodigo_pedido(str[0]);
-            ped.setCodigo_produto(str[1]);
-            ped.setCpf_cliente(str[2]);
-            ped.setDescricao(str[3]);
-            ped.setPreco(str[4]);
-            list.add(ped);
-        }
-        return list;
-    }
+            if (str.length == 6) {
+                ped.setCodigo_pedido(str[0]);
+                ped.setCodigo_produto(str[1]);
+                ped.setCpf_cliente(str[2]);
+                ped.setPreco(str[3]);
+                ped.setData_pedido(str[4]);
+                ped.setStatus(str[5]);
+                return ped;
+            }
 
-    @Override
-    public Item getItem(String codigo) {
-        Persistencia p = f.criaPersistencia();
-        String info[] = p.getValores("SELECT *FROM pedido WHERE codigo="+codigo).split(";");
-        Pedido ped = new Pedido();
-        for(String pedido:info){
-            String str[] = pedido.split(",");
-            ped= new Pedido();
-            ped.setCodigo_pedido(str[0]);
-            ped.setCodigo_produto(str[1]);
-            ped.setCpf_cliente(str[2]);
-            ped.setDescricao(str[3]);
-            ped.setPreco(str[4]);
         }
         return ped;
     }
+    @Override
+    public boolean excluir(Pedido pedido) {
+        String comando = "DELETE FROM PEDIDO where codigo_pedido='" + pedido.getCodigo_pedido() + "' or codigo_produto = '" + pedido.getCodigo_produto() + "'";
+        return persistencia.executar(comando);
+    }
 
+    @Override
+    public List<Pedido> listarPedidos(String cpf) {
+        String vetor[] = persistencia.select("SELECT *FROM PEDIDO where cpf='"+cpf+"'", "codigo_pedido, codigo_produto, cpf, preco_total, data_pedido, status").split(";");
+        Pedido ped;
+        List<Pedido> list = new ArrayList<>();
+        for (String pedido : vetor) {
+            String str[] = pedido.split(",");
+            if (str.length == 6) {
+                ped = new Pedido();
+                ped.setCodigo_pedido(str[0]);
+                ped.setCodigo_produto(str[1]);
+                ped.setCpf_cliente(str[2]);
+                ped.setPreco(str[3]);
+                ped.setData_pedido(str[4]);
+                ped.setStatus(str[5]);
+                list.add(ped);
+            }
+
+        }
+        return list;
+    }
+    @Override
+    public List<Pedido> listarPedidosNome(String nome_produto){
+        String comando="select ped.codigo_pedido, prod.preco, ped.data_pedido, ped.status, prod.codigo_produto from pedido as ped, produto as prod where ped.codigo_produto = prod.codigo_produto and (UPPER(prod.nome) like UPPER('%"+nome_produto+"%') or UPPER(prod.descricao) like UPPER('%"+nome_produto+"%'))";
+        String[] result = persistencia.select(comando, "codigo_pedido, codigo_produto, preco, data_pedido, status").split(";");
+        List<Pedido> lista = new ArrayList();
+        for(String str:result){
+            String[] dado=str.split(",");
+            if(dado.length==5){
+                Pedido pedido = fabrica.criaPedido();
+                pedido.setCodigo_pedido(dado[0]);
+                pedido.setCodigo_produto(dado[1]);
+                pedido.setPreco(dado[2]);
+                pedido.setData_pedido(dado[3]);
+                pedido.setStatus(dado[4]);
+                lista.add(pedido);
+            }
+        }
+        return lista;
+    }
+        
+    @Override
+    public List<Pedido> listarPedidos() {
+        String vetor[] = persistencia.select("SELECT *FROM PEDIDO", "codigo_pedido, codigo_produto, cpf, preco_total, data_pedido, status").split(";");
+        Pedido ped;
+        List<Pedido> list = new ArrayList<>();
+        for (String pedido : vetor) {
+            String str[] = pedido.split(",");
+            if (str.length == 6) {
+                ped = new Pedido();
+                ped.setCodigo_pedido(str[0]);
+                ped.setCodigo_produto(str[1]);
+                ped.setCpf_cliente(str[2]);
+                ped.setPreco(str[3]);
+                ped.setData_pedido(str[4]);
+                ped.setStatus(str[5]);
+                list.add(ped);
+            }
+
+        }
+        return list;
+    }
+    @Override
+    public boolean alterar(Pedido pedido){
+        return persistencia.executar("update pedido set codigo_produto = "+pedido.getCodigo_produto()+",cpf = '"+pedido.getCpf_cliente()+"', preco_total = "+pedido.getPreco()+", data_pedido = '"+pedido.getData_pedido()+"' where codigo_produto = "+pedido.getCodigo_produto());
+    }
     
+    @Override
+    public boolean existe(Pedido pedido) {
+        
+        String info[] = persistencia.select("SELECT codigo_pedido FROM pedido WHERE codigo_pedido='" + pedido.getCodigo_pedido() + "'", "codigo_pedido").split(";");
+        for (String str : info) {
+            if (str.equals(pedido.getCodigo_pedido())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     @Override
     public boolean existe(String codigo1) {
-        Persistencia p = f.criaPersistencia();
-        String info[] = p.getValores("SELECT codigo_pedido FROM pedido WHERE codigo_pedido='"+codigo1+"'").split(";");
-        return info.length>0;
+        String info[] = persistencia.select("SELECT codigo_pedido FROM pedido WHERE codigo_pedido=" + codigo1, "codigo_pedido").split(";");
+        for(String str:info){
+            if(info.length>0){
+                return codigo1.equals(str);
+            }
+        }
+        return false;
     }
 
     @Override
-    public boolean excluirAll() {
-        return conexao.executar("Delete FROM PEDIDO") && conexao.executar("ALTER SEQUENCE pedido_codigo_seq RESTART WITH 1;");
+    public boolean excluirTodos() {
+        return persistencia.executar("Delete FROM PEDIDO") && persistencia.executar("ALTER SEQUENCE pedido_codigo_seq RESTART WITH 1;");
     }
-    
+
 }

@@ -8,7 +8,6 @@ package padroes;
 import com.sistex.cgt.ControlarClientes;
 import com.sistex.cci.ControladorCliente;
 import com.sistex.cdp.Cliente;
-import com.sistex.cdp.Item;
 import com.sistex.cgd.Dao;
 import com.sistex.cgd.DaoCliente;
 import com.sistex.cgd.Persistencia;
@@ -22,17 +21,14 @@ import com.sistex.cgt.InterfaceControlar;
  */
 public class FabricaCliente extends Fabrica{
     @Override
-    public Item criaObjeto(){return new Cliente();}
+    public Cliente criaCliente(){return new Cliente();}
     
     @Override
-    public Dao criaDao(){return new DaoCliente();}
-    
-    @Override
-    public Persistencia criaPersistencia(){return new Persistencia();}
+    public DaoCliente criaDaoCliente(){return new DaoCliente();}
     
     @Override
     public HttpServlet criaControle(){return new ControladorCliente();}
     
     @Override
-    public InterfaceControlar criaApi(){return new ControlarClientes();}
+    public ControlarClientes criaApiCliente(){return new ControlarClientes();}
 }

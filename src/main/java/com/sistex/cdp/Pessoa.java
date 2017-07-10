@@ -5,19 +5,10 @@
  */
 package com.sistex.cdp;
 
-import java.util.List;
-
-
 /**
  *
  * @author jean
  */
-public interface Item {
-    
-    public void setDescricao(String descricao);
-    public String getDescricao();
-    public String[] getAtributos();
-    public String getTipo();
-    
+public abstract class Pessoa {
     
 }

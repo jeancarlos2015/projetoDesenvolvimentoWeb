@@ -6,7 +6,6 @@
 package util;
 
 import com.sistex.cdp.Funcionario;
-import com.sistex.cdp.Item;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class Funcionarios {
     /**
      * @param funcionarios the funcionarios to set
      */
-    public void setFuncionarios(List<Item> funcionarios) {
+    public void setFuncionarios(List<Funcionario> funcionarios) {
         this.funcionarios = new ArrayList(funcionarios);
     }
 }

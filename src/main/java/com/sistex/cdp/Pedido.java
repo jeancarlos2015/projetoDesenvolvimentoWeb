@@ -5,6 +5,9 @@
  */
 package com.sistex.cdp;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 /**
  *
@@ -15,32 +18,44 @@ public class Pedido extends ItemAbstract{
     private String cpf_cliente="1";
     private String codigo_produto="1";
     private String codigo_pedido="1";
-    private  float preco_total=0;
-    
+    private  float preco=0;
+    private String data_pedido="00/00/0000";
+    private String status="";
+
     public Pedido() {
         super("pedido");
     }
+    
     /**
-     * @param preco_total the preco_total to set
+     * @return the status
      */
-    public void setPreco_total(float preco_total) {
-        this.preco_total = preco_total;
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     * @param status the status to set
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    /**
+     * @param preco the preco to set
+     */
+    public void setPreco(float preco) {
+        this.preco = preco;
     }
     
     public void setPreco(String preco){
-        this.setPreco_total(Float.parseFloat(preco));
+        this.setPreco(Float.parseFloat(preco));
     }
     
    
-   @Override
-    public  String[] getAtributos(){
-        String vetor[] = {"codigo_pedido","codigo_produto","cpf","descricao","preco_total"};
-        return vetor;
-    }
+   
     
     @Override
     public String toString(){
-        return getCodigo_pedido()+" "+getCodigo_produto()+" "+getCpf_cliente()+" "+ getDescricao()+" "+ getPreco_total();
+        return getCodigo_pedido()+" "+getCodigo_produto()+" "+getCpf_cliente()+" "+ getPreco();
     }
 
     /**
@@ -68,8 +83,8 @@ public class Pedido extends ItemAbstract{
   
 
    
-    public float getPreco_total() {
-        return preco_total;
+    public float getPreco() {
+        return preco;
     }
 
     /**
@@ -100,4 +115,22 @@ public class Pedido extends ItemAbstract{
         this.produto = produto;
     }
     
+    public boolean equals(Object o){
+        Pedido pedido = (Pedido) o;
+        return pedido.getCodigo_pedido().equals(codigo_pedido) &&
+                pedido.getCodigo_produto().equals(codigo_produto) &&
+                pedido.getCpf_cliente().equals(cpf_cliente);
+    }
+
+    public void setData_pedido(String data) {
+        this.data_pedido = data;
+    }
+    public String getData_pedido_old() {
+        return data_pedido;
+    }
+    public String getData_pedido(){
+        Date data = new Date();
+        SimpleDateFormat formatador = new SimpleDateFormat("dd/MM/yyyy");
+        return formatador.format(data);
+    }
 }

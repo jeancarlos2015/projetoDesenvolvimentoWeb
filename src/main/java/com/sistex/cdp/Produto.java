@@ -9,13 +9,14 @@ package com.sistex.cdp;
  *
  * @author jean
  */
+
 public class Produto extends ItemAbstract{
     private String marca="nenhum";
     private String nome="produto";
     private float preco=0;
     private int quantidade=0;
     private String imagem="";
-    private String codigo;
+    private String codigo="1";
     
     private String cnpj;
     private String matricula;
@@ -32,40 +33,35 @@ public class Produto extends ItemAbstract{
     public String getMarca() {
         return marca;
     }
-     
-    @Override
-    public  String[] getAtributos(){
-        String vetor[] = {"codigo_produto","cnpj","matricula","nome","descricao","preco", "marca", "quantidade"};
-        return vetor;
-    }
+   
     
     @Override
     public String toString(){
-        return getCodigo()+" "+getCnpj()+" "+matricula+" "+nome+" "+descricao+" "+preco+" "+marca+" "+quantidade;
+        return getCodigo()+" "+getCnpj()+" "+matricula+" "+nome+" "+getDescricao()+" "+preco+" "+marca+" "+quantidade;
     }
     
     
     public String getTipoImagem(){
         String nome1 = this.nome.toLowerCase();
-        if(nome1.contains("salada")){
+        if(nome1.contains("salada") || getDescricao().contains("salada")){
             return "salada";
         }
-        else if(nome1.contains("tropeiro")){
+        else if(nome1.contains("tropeiro") || getDescricao().contains("tropeiro")){
             return "tropeiro";
         }
-        else if(nome1.contains("macarrao") || nome1.contains("espaguete")){
+        else if(nome1.contains("macarrao") || nome1.contains("espaguete") || getDescricao().contains("espaguete")){
             return "espaguete";
         }
-        else if(nome1.contains("frango")){
+        else if(nome1.contains("frango") || getDescricao().contains("frango")){
             return "prato1";
         }
-        else if(getNome().contains("bife")){
+        else if(getNome().contains("bife") || getDescricao().contains("bife")){
             return "prato2";
         }
-        else if(getNome().contains("coca cola")){
+        else if(getNome().contains("coca cola") || getDescricao().contains("coca cola")){
             return "cocazero";
         }
-        else if(getNome().contains("refrigerante")){
+        else if(getNome().contains("refrigerante") || getDescricao().contains("regrigerante")){
             return "refrigerante";
         }
         else{
@@ -102,7 +98,7 @@ public class Produto extends ItemAbstract{
     }
     
     public void setPreco(String preco){
-        this.preco = Float.parseFloat(preco);
+        this.preco = Float.parseFloat(preco.trim());
     }
 
     /**
@@ -164,5 +160,19 @@ public class Produto extends ItemAbstract{
     public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
-    
+    public boolean equals(Object o){
+        Produto produto = (Produto) o;
+        return produto.getCnpj().equals(cnpj) &&
+                produto.getCodigo().equals(codigo) &&
+                produto.getMatricula().equals(matricula) &&
+                produto.getNome().equals(nome) &&
+                produto.getPreco()==preco &&
+                produto.getMarca().equals(marca) &&
+                produto.getQuantidade()==quantidade;
+                
+    }
+    //string: nome, descrica, preco, tipo, marca, codigo
+    public String toFigura(){
+        return nome+","+getDescricao()+","+preco+","+getTipoImagem()+","+marca+","+codigo;
+    }
 }

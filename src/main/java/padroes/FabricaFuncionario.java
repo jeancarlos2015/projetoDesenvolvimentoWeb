@@ -9,7 +9,6 @@ import com.sistex.cgt.ControlarFuncionarios;
 import com.sistex.cci.ControladorCliente;
 import com.sistex.cci.ControladorFuncionario;
 import com.sistex.cdp.Funcionario;
-import com.sistex.cdp.Item;
 import com.sistex.cgd.DaoFuncionario;
 import com.sistex.cgd.Dao;
 import com.sistex.cgd.Persistencia;
@@ -22,17 +21,14 @@ import com.sistex.cgt.InterfaceControlar;
  */
 public class FabricaFuncionario extends Fabrica{
     @Override
-    public Item criaObjeto(){return new Funcionario();}
+    public Funcionario criaFuncionario(){return new Funcionario();}
     
     @Override
-    public Dao criaDao(){return new DaoFuncionario();}
-    
-    @Override
-    public Persistencia criaPersistencia(){return new Persistencia();}
+    public DaoFuncionario criaDaoFuncionario(){return new DaoFuncionario();}
     
     @Override
     public HttpServlet criaControle(){return new ControladorFuncionario();}
     
     @Override
-    public InterfaceControlar criaApi(){return new ControlarFuncionarios();}
+    public ControlarFuncionarios criaApiFuncionario(){return new ControlarFuncionarios();}
 }

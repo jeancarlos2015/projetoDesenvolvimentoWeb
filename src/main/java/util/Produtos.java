@@ -5,7 +5,6 @@
  */
 package util;
 
-import com.sistex.cdp.Item;
 import com.sistex.cdp.Produto;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,12 +74,11 @@ public class Produtos {
      * @return the produtos
      */
     
-    public void setProdutos(List<Item> produtos) {
-        for(Item prodItem:produtos){
+    public void setProdutos(List<Produto> produtos) {
+        for(Produto prodItem:produtos){
             Produto1 produto1 = new Produto1();
             Produto produto = (Produto) prodItem;
             produto1.nome = produto.getNome();
-            produto1.descricao = produto.getDescricao();
             produto1.imagem = produto.getTipoImagem();
             this.produtos.add(produto1);
         }

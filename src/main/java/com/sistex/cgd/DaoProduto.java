@@ -5,7 +5,6 @@
  */
 package com.sistex.cgd;
 
-import com.sistex.cdp.Item;
 import com.sistex.cdp.Produto;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,70 +15,122 @@ import static padroes.Tipo.produto;
  *
  * @author jean
  */
-public class DaoProduto implements Dao{
-    Fabrica f = Fabrica.make(produto);
-    private final Persistencia conexao = f.criaPersistencia();
-    
+public class DaoProduto extends DaoAbstract {
+
+    Fabrica fabrica = Fabrica.make(produto);
+    private final Persistencia persistencia = fabrica.criaPersistencia();
+
     @Override
-    public boolean cadastrar(Item item1) {
-        Produto item = (Produto) item1;
-        String comando = "INSERT INTO PRODUTO(codigo, nome, descricao, preco, marca, quantidade) VALUES("+",'"+item.getNome()+"','"+item.getDescricao()+"',"+item.getPreco()+",'"+item.getMarca()+"',"+item.getQuantidade()+")";
-        Persistencia instance = f.criaPersistencia();
-        return instance.executar(comando);
+    public boolean cadastrar(Produto produto) {
+        String comando = "INSERT INTO PRODUTO(cnpj, matricula, nome, descricao, preco, marca, quantidade) VALUES('" + produto.getCnpj() + "','" + produto.getMatricula() + "','" + produto.getNome() + "','" + produto.getDescricao() + "'," + produto.getPreco() + ",'" + produto.getMarca() + "'," + produto.getQuantidade() + ")";
+        return persistencia.executar(comando);
     }
 
     @Override
-    public boolean excluir(Item item) {
-        String comando = "DELETE FROM PRODUTO WHERE codigo=";
-        Persistencia instance = f.criaPersistencia();
-        return instance.executar(comando);
+    public boolean excluir(Produto produto) {
+        String comando = "DELETE FROM PRODUTO WHERE codigo_produto='" + produto.getCodigo() + "'";
+        return persistencia.executar(comando);
     }
 
     @Override
-    public List<Item> listar() {
-        Persistencia p = f.criaPersistencia();
-        String vetor[] = p.getValores("SELECT *FROM PRODUTO").split(";");
-        Produto prod;
-        List<Item> lista = new ArrayList<>();
-        for(String str:vetor){
+    public Produto buscar(String codigo_produto) {
+        Persistencia p = fabrica.criaPersistencia();
+        String vetor[] = p.select("SELECT *FROM PRODUTO where codigo_produto = " + codigo_produto, "codigo_produto, nome, descricao, preco, marca, quantidade, cnpj, matricula").split(";");
+        Produto produto = fabrica.criaProduto();
+        for (String str : vetor) {
             String dado[] = str.split(",");
-            prod = new Produto();
-//            prod.setCodigo(dado[0]);
-            prod.setNome(dado[1]);
-            prod.setDescricao(dado[2]);
-            prod.setPreco(dado[3]);
-            prod.setMarca(dado[4]);
-            prod.setQuantidade(dado[5]);
-            lista.add(prod);
+            if (dado[0].trim().equals(codigo_produto)) {
+                produto = fabrica.criaProduto();
+                produto.setCodigo(dado[0]);
+                produto.setNome(dado[1]);
+                produto.setDescricao(dado[2]);
+                produto.setPreco(dado[3]);
+                produto.setMarca(dado[4]);
+                produto.setQuantidade(dado[5]);
+                produto.setCnpj(dado[6]);
+                produto.setMatricula(dado[7]);
+                return produto;
+            }
+        }
+        return produto;
+    }
+
+    @Override
+    public List<Produto> listarProdutosNome(String nome) {
+        String comando = "select *from produto where UPPER(nome) like UPPER('%" + nome.trim() + "%') or descricao like UPPER('%" + nome.trim() + "%')";
+        String[] result = persistencia.select(comando, "codigo_produto, nome, descricao, preco, marca, quantidade, cnpj,matricula").split(";");
+        List<Produto> lista = new ArrayList();
+        for (String str : result) {
+            String[] dado = str.split(",");
+            if (dado.length == 8) {
+                Produto produto = new Produto();
+                produto.setCodigo(dado[0]);
+                produto.setNome(dado[1]);
+                produto.setDescricao(dado[2]);
+                produto.setPreco(dado[3].trim());
+                produto.setMarca(dado[4]);
+                produto.setQuantidade(dado[5]);
+                produto.setCnpj(dado[6]);
+                produto.setMatricula(dado[7]);
+                lista.add(produto);
+            }
+
         }
         return lista;
     }
 
     @Override
-    public boolean existe(Item item) {
-        return true;
+    public List<Produto> listarProdutos() {
+        Persistencia p = fabrica.criaPersistencia();
+        String vetor[] = p.select("SELECT *FROM PRODUTO", "codigo_produto, nome, descricao, preco, marca, quantidade, cnpj, matricula, tipo").split(";");
+        Produto produto;
+        List<Produto> lista = new ArrayList<>();
+        for (String str : vetor) {
+            String dado[] = str.split(",");
+            if (dado.length == 9) {
+                produto = new Produto();
+                produto.setCodigo(dado[0]);
+                produto.setNome(dado[1]);
+                produto.setDescricao(dado[2]);
+                produto.setPreco(dado[3]);
+                produto.setMarca(dado[4]);
+                produto.setQuantidade(dado[5]);
+                produto.setCnpj(dado[6]);
+                produto.setMatricula(dado[7]);
+                produto.setTipo(dado[8]);
+                lista.add(produto);
+            }
+
+        }
+        return lista;
     }
 
     @Override
-    public boolean existe(String cpf) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean existe(Produto produto) {
+        String[] result = persistencia.select("select codigo_produto from produto where codigo_produto=" + produto.getCodigo(), "codigo_produto").split(";");
+        for (String str : result) {
+            String[] dado = str.split(",");
+            if (dado[0].equals(produto.getCodigo())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public List<Item> listarVinculo(Item item) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean existe(String codigo_produto) {
+        String[] result = persistencia.select("select codigo_produto from produto where codigo_produto='" + codigo_produto + "'", "codigo_produto").split(";");
+        for (String str : result) {
+            if (str.equals(codigo_produto)) {
+                return true;
+            }
+        }
+        return false;
     }
-
-    
 
     @Override
-    public Item getItem(String cpf) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean excluirTodos() {
+        return persistencia.executar("Delete FROM PRODUTO") && persistencia.executar("ALTER SEQUENCE produto_codigo_produto_seq RESTART WITH 1;");
     }
 
-    @Override
-    public boolean excluirAll() {
-        return conexao.executar("Delete FROM PRODUTO") && conexao.executar("ALTER SEQUENCE produto_codigo_seq RESTART WITH 1;");
-    }
-    
 }

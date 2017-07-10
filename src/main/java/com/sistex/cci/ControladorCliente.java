@@ -6,24 +6,19 @@
 package com.sistex.cci;
 
 import com.sistex.cdp.Cliente;
-import com.sistex.cdp.Item;
 import com.sistex.cgd.Dao;
+import com.sistex.cgt.ControlarClientes;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import padroes.Fabrica;
-import com.sistex.cgt.InterfaceControlar;
-import com.sistex.cih.TelaAbstract;
-import com.sistex.cih.TelaControleClientes;
-import com.sistex.cih.TelaControleProdutos;
+import com.sistex.cih.Tela;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
-import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpSession;
 import static padroes.Tipo.cliente;
-import sun.rmi.server.Dispatcher;
+import util.Ferramenta;
 
 /**
  *
@@ -32,123 +27,106 @@ import sun.rmi.server.Dispatcher;
 public class ControladorCliente extends HttpServlet {
 
     private final Fabrica fabrica = Fabrica.make(cliente);
-    private InterfaceControlar api;
-    protected Item item = fabrica.criaObjeto();
+    private final ControlarClientes api = fabrica.criaApiCliente();
+    Tela tela = new Tela();
+    protected Dao dao = fabrica.criaDaoCliente();
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if(request.getParameter("operacao").equals("controle")){
-            cadastrar(request, response);
-            geraTabelaClientes(response);
-        }else if(request.getParameter("operacao").equals("cadastro")){
-//            RequestDispatcher dispatcher = request.getRequestDispatcher("cadastroClientes.jsp");
-//            dispatcher.forward(request, response);
-              
-        }
-        
-        excluir(request);
-    }
-    private void menu(HttpServletRequest request, HttpServletResponse response) throws IOException{
-        PrintWriter pw = response.getWriter();
-        TelaControleClientes tela = new TelaControleClientes();
-        tela.inicioHtml(response);
-        tela.montahead(pw, "Controle De Registro de clientes");
-        tela.inicioBody(pw);
-        
-        tela.abreFormulario(pw, "Controlador","");
-        tela.criaCampoOculto(pw,"tipo","cliente");
-        tela.criaCampoOculto(pw,"operacao","cadastro");
-        tela.criaBotao(pw, "Clientes","bg-white radius campo");
-        tela.fechaFormulario(pw);
-        
-        tela.abreFormulario(pw, "Controlador","");
-        tela.criaCampoOculto(pw,"tipo","cliente");
-        tela.criaBotao(pw, "Clientes","bg-white radius campo");
-        tela.fechaFormulario(pw);
-        
-        tela.montarodape(pw);
-        tela.fimBody(pw);
-        tela.fimHtml(pw);
-    }
-
-    private void geraTabelaClientes(HttpServletResponse response) throws IOException {
-
-        TelaControleClientes tela = new TelaControleClientes();
-        item = fabrica.criaObjeto();
-        Dao dao = fabrica.criaDao();
-        PrintWriter pw = response.getWriter();
-        tela.inicioHtml(response);
-        tela.montahead(pw, "Controle De Registro de clientes");
-        tela.inicioBody(pw);
-        tela.montamenu(pw);
-        tela.montacampos(pw, "Controle De Registro de Clientes","controle");
-        tela.topoTabela(pw, "Tabela de clientes");
-        
-        tela.titulosTabela(pw,Arrays.asList(getAtributos()));
-        tela.inicioConteudo(pw);
-        for (Item i : dao.listar()) {
-            Cliente cli = (Cliente) i;
-            tela.abreLinha(pw);
-            tela.abreFormulario(pw, "Controlador","");
-            tela.criaCampoTabela(pw, cli.getCpf());
-            tela.criaCampoTabela(pw, cli.getMatricula());
-            tela.criaCampoTabela(pw, cli.getNome());
-            tela.criaCampoTabela(pw, "" + cli.getIdade());
-            tela.criaCampoTabela(pw, cli.getEmail());
-            tela.fechaFormulario(pw);
-            tela.fechaLinha(pw);
-        }
-        tela.finalConteudo(pw);
-        tela.abreFormulario(pw, "Controlador","");
-        tela.criaCampo(pw, "cpf", "Digite o cpf do cliente","campo1");
-        tela.criaBotao(pw, "Excluir","campo1");
-        tela.fechaFormulario(pw);
-        tela.montarodape(pw);
-        tela.fimBody(pw);
-        tela.fimHtml(pw);
+        Ferramenta.fechaSessao(request, response);
+        cadastrar(request, response);
+        autentica(request, response);
+        atualizar(request, response);
+        excluir(request, response);
     }
 
     private void cadastrar(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        item = fabrica.criaObjeto();
-        if (TelaAbstract.valida(request, item.getAtributos())) {
-            if (request.getParameter("operacao").equals("cadastro")) {
-                api = fabrica.criaApi();
-                item = getItem(request);
-                api.cadastrar(item);
+
+        if (tela.getInfo(request,"operacao").equals("cadastro")) {
+            Cliente cliente = getItem(request);
+            if (api.cadastrar(cliente)) {
+                tela.setSessaoAtributo(request, "usuario", cliente.getNome());
+                tela.setSessaoAtributo(request, "cpf", cliente.getCpf());
+                tela.setSessaoAtributo(request, "nome", cliente.getNome());
+                tela.setSessaoAtributo(request, "matricula", cliente.getMatricula());
+                tela.setSessaoAtributo(request, "idade", cliente.getIdade());
+                tela.setSessaoAtributo(request, "email", cliente.getEmail());
+                tela.setSessaoAtributo(request, "senha", cliente.getSenha());
+                tela.enviaMensagem(response, "restrito/telaConfirmacaoCadastro.jsp");
+                
+            } else {
+                tela.setSessaoAtributo(request, "mensagem_cliente", "Cliente nao foi cadastrado!!!");
+                tela.enviaMensagem(response, "cadastroClientes.jsp");
             }
         }
     }
 
-    private void excluir(HttpServletRequest request) throws IOException {
-        if(request.getParameter("operacao").equals("exclusao")){
-            api = fabrica.criaApi();
-            item = getItem(request);
-            api.excluir(item);
+    private void excluir(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (tela.getInfo(request,"operacao").equals("exclusao")) {
+            Cliente cliente = getItem(request);
+            if(api.excluir(cliente)){
+                tela.setSessaoAtributo(request, "mensagem_exclusao", "Cliente excluido com sucesso!!!");
+            }else{
+                tela.setSessaoAtributo(request, "mensagem_exclusao", "Cliente nao excluido com sucesso!!!");
+            }
+            tela.enviaMensagem(response,"controleClientes.jsp");
         }
     }
 
-    private boolean autentica(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        TelaAbstract.alert("Esse usuario não existe!!!", response.getWriter());
-        Cliente item1 = (Cliente) item;
-        api = fabrica.criaApi();
-        item1.setCpf(request.getParameter("cpf"));
-        item1.setSenha(request.getParameter("senha"));
-        return api.existe(item);
+    public void atualizar(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        if (tela.getInfo(request,"operacao").equals("atualizar")) {
+            Cliente cliente = getItem(request);
+            if (api.alterar(cliente)) {
+                tela.setSessaoAtributo(request,"mensagem_alteracao", "Dados alterados com sucesso!!!");
+            }else{
+                tela.setSessaoAtributo(request,"mensagem_alteracao", "Dados nao foram alterados!!!");
+            }
+            tela.enviaMensagem(response, "restrito/alterarDadoCliente.jsp");
+        }
+
     }
 
+    private void autentica(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String operacao = tela.getInfo(request,"operacao");
+        if (operacao.equals("autenticacao")) {
+            Cliente cliente = fabrica.criaCliente();
+            cliente.setCpf(tela.getInfo(request,"cpf"));
+            cliente.setSenha(tela.getInfo(request,"senha"));
 
-    private Item getItem(HttpServletRequest request) {
-        Cliente item1 = (Cliente) fabrica.criaObjeto();
-        item1.setCpf(request.getParameter("cpf"));
-        item1.setNome(request.getParameter("nome"));
-        item1.setIdade(request.getParameter("idade"));
-        item1.setEmail(request.getParameter("email"));
-        item1.setSenha(request.getParameter("senha"));
-        return item1;
+            if (api.autenticar(cliente)) {
+                Cliente novo = api.buscar(cliente);
+                tela.setSessaoAtributo(request, "usuario", novo.getNome() + " Logado");
+                tela.setSessaoAtributo(request,"valor_matricula", novo.getMatricula());
+                tela.setSessaoAtributo(request,"titulo", novo.getNome());
+                tela.setSessaoAtributo(request,"valor_nome", novo.getNome());
+                tela.setSessaoAtributo(request,"valor_idade", novo.getIdade());
+                tela.setSessaoAtributo(request,"valor_cpf", novo.getCpf());
+                tela.setSessaoAtributo(request,"valor_email", novo.getEmail());
+                tela.enviaMensagem(response,"restrito/contaCliente.jsp");
+            } else {
+                tela.setSessaoAtributo(request,"mensagem", "Usuário ou senha invalidos!!!");
+                tela.setSessaoAtributo(request,"usuario", null);
+                tela.enviaMensagem(response, "acesso.jsp");
+            }
+
+        }
+
     }
-    public String[] getAtributos(){
-        String vetor[] = {"cpf","matricula","nome","idade","email"};
+
+    private Cliente getItem(HttpServletRequest request) {
+        Cliente cliente1 = fabrica.criaCliente();
+        cliente1.setCpf(tela.getInfo(request,"cpf"));
+        cliente1.setNome(tela.getInfo(request,"nome"));
+        cliente1.setIdade(tela.getInfo(request,"idade"));
+        cliente1.setEmail(tela.getInfo(request,"email"));
+        cliente1.setSenha(tela.getInfo(request,"senha"));
+        cliente1.setMatricula(tela.getInfo(request,"matricula"));
+        return cliente1;
+    }
+
+    public String[] getAtributos() {
+        String vetor[] = {"cpf", "matricula", "nome", "idade", "email"};
         return vetor;
     }
 }
