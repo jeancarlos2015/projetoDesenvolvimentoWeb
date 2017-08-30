@@ -25,7 +25,7 @@ import java.util.List;
 public class Persistencia {
 
     private String url = "jdbc:postgresql://localhost:5432/bancoSistex",
-            usuario = "postgres", senha = "ifes";
+            usuario = "jean", senha = "ifes";
     private Connection con;
     private Statement stm;
     private String driver = "org.postgresql.Driver";
