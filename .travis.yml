@@ -8,5 +8,5 @@ services:
   - postgresql
   
 before_script:
-  - psql -c "CREATE DATABASE bancoSistex;" -U jean
-  - psql -c "CREATE USER jean WITH PASSWORD 'ifes';" -U jean
+  - psql -c "CREATE DATABASE bancoSistex;" -U postgres
+  - psql -c "CREATE USER jean WITH PASSWORD 'ifes';" -U postgres
