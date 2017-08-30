@@ -1,6 +1,0 @@
-#before_script:
- # - cp config/database.yml.travis config/database.yml
-before_script:
-   - psql -c 'create database bancoSistex;' -U postgres
-   - sudo -u postgres psql
-   -psql -c 'alter user postgres password 'ifes'
