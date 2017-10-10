@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import padroes.Fabrica;
 import com.sistex.cih.Tela;
-import java.io.PrintWriter;
-import javax.servlet.http.HttpSession;
 import static padroes.Tipo.cliente;
 import util.Ferramenta;
 

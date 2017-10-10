@@ -12,6 +12,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -32,6 +34,17 @@ public class Persistencia {
         String password = dbUri.getUserInfo().split(":")[1];
         String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
         return DriverManager.getConnection(dbUrl, username, password);
+    }
+
+    private  Connection getConnection1() {
+        try {
+            Class.forName(driver);
+            con = DriverManager.getConnection(url, usuario, senha);
+            return con;
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Persistencia.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
 //    public boolean executar(String comando) {
@@ -72,6 +85,7 @@ public class Persistencia {
         } catch (URISyntaxException ex) {
             return false;
         }
+        
     }
 
     public String select(String comando, String colunas) {
@@ -100,8 +114,9 @@ public class Persistencia {
             System.out.println(ex.getMessage());
             return null;
         } catch (URISyntaxException ex) {
-            return null;
+            Logger.getLogger(Persistencia.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
     }
 
     public String getUrl() {
