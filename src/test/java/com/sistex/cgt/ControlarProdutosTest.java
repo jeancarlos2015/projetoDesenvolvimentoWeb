@@ -75,7 +75,7 @@ public class ControlarProdutosTest {
     @Test
     public void testBuscar() {
         Produto produto = api.buscar("10");
-        assertEquals(produto.getCodigo(), "10");
+        assertEquals(produto.getIdproduto(), "10");
     }
     
 }

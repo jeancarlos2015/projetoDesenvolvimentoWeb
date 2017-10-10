@@ -23,13 +23,13 @@ public class DaoPedido extends DaoAbstract {
     @Override
     public boolean cadastrar(Pedido item) {
         Pedido p = (Pedido) item;
-        String comando = "INSERT INTO PEDIDO(codigo_produto, cpf, data_pedido, preco_total, status) VALUES('" + p.getCodigo_produto() + "','" + p.getCpf_cliente() + "','"+p.getData_pedido()+ "'," + p.getPreco() +",'"+p.getStatus()+ "')";
+        String comando = "INSERT INTO PEDIDO(idproduto, cpf, data_pedido, preco_total, status) VALUES('" + p.getCodigo_produto() + "','" + p.getCpf_cliente() + "','"+p.getData_pedido()+ "'," + p.getPreco() +",'"+p.getStatus()+ "')";
         return persistencia.executar(comando);
     }
     
     @Override
     public Pedido buscar(String codigo_pedido){
-        String vetor[] = persistencia.select("SELECT *FROM PEDIDO where codigo_pedido="+codigo_pedido,"codigo_pedido, codigo_produto, cpf, preco_total, data_pedido, status").split(";");
+        String vetor[] = persistencia.select("SELECT *FROM PEDIDO where codigo_pedido="+codigo_pedido,"codigo_pedido, idproduto, cpf, preco_total, data_pedido, status").split(";");
         Pedido ped = fabrica.criaPedido();
         for (String pedido : vetor) {
             String str[] = pedido.split(",");
@@ -48,13 +48,13 @@ public class DaoPedido extends DaoAbstract {
     }
     @Override
     public boolean excluir(Pedido pedido) {
-        String comando = "DELETE FROM PEDIDO where codigo_pedido='" + pedido.getCodigo_pedido() + "' or codigo_produto = '" + pedido.getCodigo_produto() + "'";
+        String comando = "DELETE FROM PEDIDO where codigo_pedido='" + pedido.getCodigo_pedido() + "' or idproduto = '" + pedido.getCodigo_produto() + "'";
         return persistencia.executar(comando);
     }
 
     @Override
     public List<Pedido> listarPedidos(String cpf) {
-        String vetor[] = persistencia.select("SELECT *FROM PEDIDO where cpf='"+cpf+"'", "codigo_pedido, codigo_produto, cpf, preco_total, data_pedido, status").split(";");
+        String vetor[] = persistencia.select("SELECT *FROM PEDIDO where cpf='"+cpf+"'", "codigo_pedido, idproduto, cpf, preco_total, data_pedido, status").split(";");
         Pedido ped;
         List<Pedido> list = new ArrayList<>();
         for (String pedido : vetor) {
@@ -75,8 +75,8 @@ public class DaoPedido extends DaoAbstract {
     }
     @Override
     public List<Pedido> listarPedidosNome(String nome_produto){
-        String comando="select ped.codigo_pedido, prod.preco, ped.data_pedido, ped.status, prod.codigo_produto from pedido as ped, produto as prod where ped.codigo_produto = prod.codigo_produto and (UPPER(prod.nome) like UPPER('%"+nome_produto+"%') or UPPER(prod.descricao) like UPPER('%"+nome_produto+"%'))";
-        String[] result = persistencia.select(comando, "codigo_pedido, codigo_produto, preco, data_pedido, status").split(";");
+        String comando="select ped.codigo_pedido, prod.preco, ped.data_pedido, ped.status, prod.idproduto from pedido as ped, produto as prod where ped.idproduto = prod.idproduto and (UPPER(prod.nome) like UPPER('%"+nome_produto+"%') or UPPER(prod.descricao) like UPPER('%"+nome_produto+"%'))";
+        String[] result = persistencia.select(comando, "codigo_pedido, idproduto, preco, data_pedido, status").split(";");
         List<Pedido> lista = new ArrayList();
         for(String str:result){
             String[] dado=str.split(",");
@@ -95,7 +95,7 @@ public class DaoPedido extends DaoAbstract {
         
     @Override
     public List<Pedido> listarPedidos() {
-        String vetor[] = persistencia.select("SELECT *FROM PEDIDO", "codigo_pedido, codigo_produto, cpf, preco_total, data_pedido, status").split(";");
+        String vetor[] = persistencia.select("SELECT *FROM PEDIDO", "codigo_pedido, idproduto, cpf, preco_total, data_pedido, status").split(";");
         Pedido ped;
         List<Pedido> list = new ArrayList<>();
         for (String pedido : vetor) {
@@ -116,7 +116,7 @@ public class DaoPedido extends DaoAbstract {
     }
     @Override
     public boolean alterar(Pedido pedido){
-        return persistencia.executar("update pedido set codigo_produto = "+pedido.getCodigo_produto()+",cpf = '"+pedido.getCpf_cliente()+"', preco_total = "+pedido.getPreco()+", data_pedido = '"+pedido.getData_pedido()+"' where codigo_produto = "+pedido.getCodigo_produto());
+        return persistencia.executar("update pedido set idproduto = "+pedido.getCodigo_produto()+",cpf = '"+pedido.getCpf_cliente()+"', preco_total = "+pedido.getPreco()+", data_pedido = '"+pedido.getData_pedido()+"' where idproduto = "+pedido.getCodigo_produto());
     }
     
     @Override

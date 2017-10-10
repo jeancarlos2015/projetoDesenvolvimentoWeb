@@ -12,16 +12,17 @@ import java.util.Objects;
  * @author jean
  */
 public class Fornecedor extends ItemAbstract{
-    private String nome="Fulano", cnpj="1234123412", telefone="12312",endereco="teste";
+    private String nome="Fulano", cnpj="1234123412", telefone="12312",endereco="teste", email="teste@gmail.com";
+    
     public Fornecedor() {
         super("fornecedor");
     }
     
-  
+    
     
     @Override
     public String toString(){
-        return cnpj+" "+nome+" "+telefone+" "+endereco;
+        return cnpj+" "+nome+" "+telefone+" "+endereco+" "+ email;
     }
     /**
      * @return the nome
@@ -96,6 +97,14 @@ public class Fornecedor extends ItemAbstract{
         hash = 79 * hash + Objects.hashCode(this.telefone);
         hash = 79 * hash + Objects.hashCode(this.endereco);
         return hash;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
     
 }

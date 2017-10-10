@@ -98,7 +98,7 @@ public class DaoCliente extends DaoAbstract {
     }
     @Override
     public float getPrecoTotal(String cpf){
-        String[] result = persistencia.select("select sum(preco) as total from  produto as prod, pedido as ped where prod.codigo_produto = ped.codigo_produto and ped.cpf='"+cpf+"'", "total").split(";");
+        String[] result = persistencia.select("select sum(preco) as total from  produto as prod, pedido as ped where prod.idproduto = ped.idproduto and ped.cpf='"+cpf+"'", "total").split(";");
         float preco_total=0;
         for(String str:result){
             if(str!=null){

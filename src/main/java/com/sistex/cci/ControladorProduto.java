@@ -5,6 +5,8 @@
  */
 package com.sistex.cci;
 
+import com.sistex.cdp.Fornecedor;
+import com.sistex.cdp.Funcionario;
 import com.sistex.cdp.Produto;
 import com.sistex.cgt.ControlarProdutos;
 import java.io.IOException;
@@ -21,6 +23,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import static padroes.Tipo.fornecedor;
+import static padroes.Tipo.funcionario;
 
 /**
  *
@@ -32,7 +36,8 @@ public class ControladorProduto extends HttpServlet {
     private final Fabrica fabrica = Fabrica.make(Tipo.produto);
     private final Tela tela = fabrica.criaTela();
     private final ControlarProdutos api = fabrica.criaApiProduto();
-
+    private final Fabrica fabricaFuncionario = Fabrica.make(funcionario);
+    private final Fabrica fabricaFornecedor = Fabrica.make(fornecedor);
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -50,17 +55,6 @@ public class ControladorProduto extends HttpServlet {
             }
         }
     }
-
-    private void acessaCadastroProduto(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (tela.getInfo(request,"pagina").equals("cadastro")) {
-            PrintWriter pw = response.getWriter();
-            pw.println("teste");
-//            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsp/cadastroProdutos.jsp");
-//            rd.forward(request, response);
-        }
-    }
-
-    
     
     public void listar(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (tela.getInfo(request,"operacao").equals("listar")) {
@@ -90,8 +84,10 @@ public class ControladorProduto extends HttpServlet {
         produto.setPreco(tela.getInfo(request,"preco"));
         produto.setMarca(tela.getInfo(request,"marca"));
         produto.setQuantidade(tela.getInfo(request,"quantidade"));
-        produto.setMatricula(tela.getInfo(request,"matricula"));
-        produto.setCnpj(tela.getInfo(request,"cnpj"));
+        Fornecedor fornecedor = fabricaFornecedor.criaFornecedor();
+        Funcionario funcionario = fabricaFuncionario.criaFuncionario();
+        funcionario.setMatricula(tela.getInfo(request,"matricula"));
+        fornecedor.setCnpj(tela.getInfo(request,"cnpj"));
         return produto;
     }
 

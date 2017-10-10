@@ -31,24 +31,7 @@ public class ControlarProdutos extends Controlar {
 
     }
 
-    @Override
-    public boolean valida(Produto produto) {
-        try {
-            boolean result = produto.getCodigo().equals("null");
-            result = result && produto.getCnpj().equals("null");
-            result = result && produto.getMatricula().equals("null");
-            result = result && produto.getNome().equals("null");
-            result = result && produto.getPreco() == 0;
-            result = result && produto.getMarca().equals("null");
-            result = result && produto.getQuantidade() == 0;
-            result = result && produto.getTipo().equals("null");
-            return result;
-        } catch (Exception e) {
-            return false;
-        }
-
-    }
-
+   
     @Override
     public boolean excluir(Produto produto) {
         try {

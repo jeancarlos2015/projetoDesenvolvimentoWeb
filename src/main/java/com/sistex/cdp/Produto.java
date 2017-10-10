@@ -5,6 +5,8 @@
  */
 package com.sistex.cdp;
 
+import java.util.Objects;
+
 /**
  *
  * @author jean
@@ -16,10 +18,11 @@ public class Produto extends ItemAbstract{
     private float preco=0;
     private int quantidade=0;
     private String imagem="";
-    private String codigo="1";
+    private String idproduto="1";
+    private String descricao="";
+    private Funcionario funcionario;
+    private Fornecedor fornecedor;
     
-    private String cnpj;
-    private String matricula;
     public Produto() {
         super("produto");
     }
@@ -37,7 +40,7 @@ public class Produto extends ItemAbstract{
     
     @Override
     public String toString(){
-        return getCodigo()+" "+getCnpj()+" "+matricula+" "+nome+" "+getDescricao()+" "+preco+" "+marca+" "+quantidade;
+        return getIdproduto()+" "+fornecedor.getCnpj()+" "+funcionario.getMatricula()+" "+fornecedor.getCnpj()+" "+nome+" "+getDescricao()+" "+preco+" "+marca+" "+quantidade;
     }
     
     
@@ -119,60 +122,82 @@ public class Produto extends ItemAbstract{
         this.quantidade = Integer.parseInt(quantidade);
     }
 
-    /**
-     * @return the cnpj
-     */
-    public String getCnpj() {
-        return cnpj;
+    public String getIdproduto() {
+        return idproduto;
     }
 
     /**
-     * @param cnpj the cnpj to set
+     * @param idproduto the idproduto to set
      */
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj;
+    public void setIdproduto(String idproduto) {
+        this.idproduto = idproduto;
     }
-
-    /**
-     * @return the matricula
-     */
-    public String getMatricula() {
-        return matricula;
-    }
-
-    /**
-     * @param matricula the matricula to set
-     */
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
-
-    /**
-     * @return the codigo
-     */
-    public String getCodigo() {
-        return codigo;
-    }
-
-    /**
-     * @param codigo the codigo to set
-     */
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
+    @Override
     public boolean equals(Object o){
         Produto produto = (Produto) o;
-        return produto.getCnpj().equals(cnpj) &&
-                produto.getCodigo().equals(codigo) &&
-                produto.getMatricula().equals(matricula) &&
+        Fornecedor fornecedor1 = produto.getFornecedor();
+        Funcionario funcionario1 = produto.getFuncionario();
+        return fornecedor1.getCnpj().equals(this.fornecedor.getCnpj()) &&
+                produto.getIdproduto().equals(idproduto) &&
+                funcionario1.getMatricula().equals(this.funcionario.getMatricula()) &&
                 produto.getNome().equals(nome) &&
                 produto.getPreco()==preco &&
                 produto.getMarca().equals(marca) &&
                 produto.getQuantidade()==quantidade;
                 
     }
-    //string: nome, descrica, preco, tipo, marca, codigo
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 11 * hash + Objects.hashCode(this.marca);
+        hash = 11 * hash + Objects.hashCode(this.nome);
+        hash = 11 * hash + Float.floatToIntBits(this.preco);
+        hash = 11 * hash + this.quantidade;
+        hash = 11 * hash + Objects.hashCode(this.imagem);
+        hash = 11 * hash + Objects.hashCode(this.idproduto);
+        hash = 11 * hash + Objects.hashCode(this.descricao);
+        hash = 11 * hash + Objects.hashCode(this.funcionario);
+        hash = 11 * hash + Objects.hashCode(this.fornecedor);
+        return hash;
+    }
+    //string: nome, descrica, preco, tipo, marca, idproduto
     public String toFigura(){
-        return nome+","+getDescricao()+","+preco+","+getTipoImagem()+","+marca+","+codigo;
+        return nome+","+getDescricao()+","+preco+","+getTipoImagem()+","+marca+","+idproduto;
+    }
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
+    }
+
+
+    @Override
+    public String getDescricao() {
+        return descricao;
+    }
+
+    @Override
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public Funcionario getFuncionario() {
+        return funcionario;
+    }
+
+    public void setFuncionario(Funcionario funcionario) {
+        this.funcionario = funcionario;
+    }
+
+    public Fornecedor getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
     }
 }

@@ -5,7 +5,6 @@
  */
 package com.sistex.cgd;
 
-import com.sistex.cdp.Cliente;
 import com.sistex.cdp.Funcionario;
 import java.util.ArrayList;
 import java.util.List;

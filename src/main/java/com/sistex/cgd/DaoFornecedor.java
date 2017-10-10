@@ -10,11 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import padroes.Fabrica;
 
-/**
- * 1q
- *
- * @author jean
- */
+
 public class DaoFornecedor extends DaoAbstract {
 
     private final Fabrica fabrica = Fabrica.make("fornecedor");
@@ -22,7 +18,7 @@ public class DaoFornecedor extends DaoAbstract {
 
     @Override
     public boolean cadastrar(Fornecedor fornecedor) {
-        return persistencia.executar("insert into fornecedor(nome, cnpj, telefone, endereco) values('" + fornecedor.getNome() + "','" + fornecedor.getCnpj() + "','" + fornecedor.getTelefone() + "','" + fornecedor.getEndereco() + "')");
+        return persistencia.executar("insert into fornecedor(nome, cnpj, telefone, endereco, email) values('" + fornecedor.getNome() + "','" + fornecedor.getCnpj() + "','" + fornecedor.getTelefone() + "','" + fornecedor.getEndereco() +"','"+fornecedor.getEmail()+ "')");
     }
 
     @Override
@@ -32,15 +28,16 @@ public class DaoFornecedor extends DaoAbstract {
 
     @Override
     public Fornecedor buscar(String cnpj) {
-        String[] result = persistencia.select("select *from fornecedor where cnpj='" + cnpj + "'", "cnpj, endereco, nome, telefone").split(";");
+        String[] result = persistencia.select("select *from fornecedor where cnpj='" + cnpj + "'", "cnpj, endereco, nome, telefone, email").split(";");
         Fornecedor fornecedor = fabrica.criaFornecedor();
         for (String linha : result) {
             String[] campo = linha.split(",");
-            if (campo.length == 4) {
+            if (campo.length == 5) {
                 fornecedor.setCnpj(campo[0]);
                 fornecedor.setEndereco(campo[1]);
                 fornecedor.setNome(campo[2]);
                 fornecedor.setTelefone(campo[3]);
+                fornecedor.setEmail(campo[4]);
                 return fornecedor;
             }
 
@@ -70,17 +67,18 @@ public class DaoFornecedor extends DaoAbstract {
 
     @Override
     public List<Fornecedor> listarFornecedores() {
-        String[] result = persistencia.select("select *from fornecedor", "cnpj, endereco, nome, telefone").split(";");
+        String[] result = persistencia.select("select *from fornecedor", "cnpj, endereco, nome, telefone, email").split(";");
         List<Fornecedor> lista = new ArrayList();
         for (String linha : result) {
             
             String[] campo = linha.split(",");
-            if (campo.length == 4) {
+            if (campo.length == 5) {
                 Fornecedor fornecedor = fabrica.criaFornecedor();
                 fornecedor.setCnpj(campo[0]);
                 fornecedor.setEndereco(campo[1]);
                 fornecedor.setNome(campo[2]);
                 fornecedor.setTelefone(campo[3]);
+                fornecedor.setEmail(campo[4]);
                 lista.add(fornecedor);
             }
         }
@@ -89,7 +87,7 @@ public class DaoFornecedor extends DaoAbstract {
 
     @Override
     public List<Fornecedor> listarFornecedores(String nome) {
-        String[] result = persistencia.select("select *from fornecedor where UPPER(nome) like UPPER('%" + nome + "%')", "cnpj, endereco, nome, telefone").split(";");
+        String[] result = persistencia.select("select *from fornecedor where UPPER(nome) like UPPER('%" + nome + "%')", "cnpj, endereco, nome, telefone, email").split(";");
         List<Fornecedor> lista = new ArrayList();
         for (String linha : result) {
 
@@ -100,6 +98,7 @@ public class DaoFornecedor extends DaoAbstract {
                 fornecedor.setEndereco(campo[1]);
                 fornecedor.setNome(campo[2]);
                 fornecedor.setTelefone(campo[3]);
+                fornecedor.setEmail(campo[4]);
                 lista.add(fornecedor);
             }
 

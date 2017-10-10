@@ -5,10 +5,14 @@
  */
 package com.sistex.cgd;
 
+import com.sistex.cdp.Fornecedor;
+import com.sistex.cdp.Funcionario;
 import com.sistex.cdp.Produto;
 import java.util.ArrayList;
 import java.util.List;
 import padroes.Fabrica;
+import static padroes.Tipo.fornecedor;
+import static padroes.Tipo.funcionario;
 import static padroes.Tipo.produto;
 
 /**
@@ -17,39 +21,53 @@ import static padroes.Tipo.produto;
  */
 public class DaoProduto extends DaoAbstract {
 
-    Fabrica fabrica = Fabrica.make(produto);
+    private final Fabrica fabrica = Fabrica.make(produto);
+    private final Fabrica fabricaFornecedor = Fabrica.make(fornecedor);
+    private final Fabrica fabricaFuncionario = Fabrica.make(funcionario);
     private final Persistencia persistencia = fabrica.criaPersistencia();
+    private final DaoFornecedor daoFornecedor = fabricaFornecedor.criaDaoFornecedor();
+    private final DaoFuncionario daoFuncionario = fabricaFuncionario.criaDaoFuncionario();
 
     @Override
     public boolean cadastrar(Produto produto) {
-        String comando = "INSERT INTO PRODUTO(cnpj, matricula, nome, descricao, preco, marca, quantidade) VALUES('" + produto.getCnpj() + "','" + produto.getMatricula() + "','" + produto.getNome() + "','" + produto.getDescricao() + "'," + produto.getPreco() + ",'" + produto.getMarca() + "'," + produto.getQuantidade() + ")";
+        Fornecedor fornecedor = produto.getFornecedor();
+        Funcionario funcionario = produto.getFuncionario();
+        String comando = "INSERT INTO PRODUTO(cnpj, matricula, nome, descricao, preco, marca, quantidade) VALUES('" + fornecedor.getCnpj() + "','" + funcionario.getMatricula() + "','" + produto.getNome() + "','" + produto.getDescricao() + "'," + produto.getPreco() + ",'" + produto.getMarca() + "'," + produto.getQuantidade() + ")";
         return persistencia.executar(comando);
     }
 
     @Override
     public boolean excluir(Produto produto) {
-        String comando = "DELETE FROM PRODUTO WHERE codigo_produto='" + produto.getCodigo() + "'";
+        String comando = "DELETE FROM PRODUTO WHERE idproduto='" + produto.getIdproduto() + "'";
         return persistencia.executar(comando);
     }
 
+    private Produto toProduto(String[] dado) {
+        Produto produto = fabrica.criaProduto();
+        produto.setIdproduto(dado[0]);
+        produto.setNome(dado[1]);
+        produto.setDescricao(dado[2]);
+        produto.setPreco(dado[3]);
+        produto.setMarca(dado[4]);
+        produto.setQuantidade(dado[5]);
+        Fornecedor fornecedor = daoFornecedor.buscar(dado[6]);
+        produto.setFornecedor(fornecedor);
+        Funcionario funcionario = daoFuncionario.buscar(dado[7]);
+        produto.setFuncionario(funcionario);
+      
+        return produto;
+
+    }
+
     @Override
-    public Produto buscar(String codigo_produto) {
+    public Produto buscar(String idproduto) {
         Persistencia p = fabrica.criaPersistencia();
-        String vetor[] = p.select("SELECT *FROM PRODUTO where codigo_produto = " + codigo_produto, "codigo_produto, nome, descricao, preco, marca, quantidade, cnpj, matricula").split(";");
+        String vetor[] = p.select("SELECT *FROM PRODUTO where idproduto = " + idproduto, "idproduto, nome, descricao, preco, marca, quantidade, cnpj, matricula").split(";");
         Produto produto = fabrica.criaProduto();
         for (String str : vetor) {
             String dado[] = str.split(",");
-            if (dado[0].trim().equals(codigo_produto)) {
-                produto = fabrica.criaProduto();
-                produto.setCodigo(dado[0]);
-                produto.setNome(dado[1]);
-                produto.setDescricao(dado[2]);
-                produto.setPreco(dado[3]);
-                produto.setMarca(dado[4]);
-                produto.setQuantidade(dado[5]);
-                produto.setCnpj(dado[6]);
-                produto.setMatricula(dado[7]);
-                return produto;
+            if (dado[0].trim().equals(idproduto)) {
+               return toProduto(dado);
             }
         }
         return produto;
@@ -58,20 +76,12 @@ public class DaoProduto extends DaoAbstract {
     @Override
     public List<Produto> listarProdutosNome(String nome) {
         String comando = "select *from produto where UPPER(nome) like UPPER('%" + nome.trim() + "%') or descricao like UPPER('%" + nome.trim() + "%')";
-        String[] result = persistencia.select(comando, "codigo_produto, nome, descricao, preco, marca, quantidade, cnpj,matricula").split(";");
+        String[] result = persistencia.select(comando, "idproduto, nome, descricao, preco, marca, quantidade, cnpj,matricula").split(";");
         List<Produto> lista = new ArrayList();
         for (String str : result) {
             String[] dado = str.split(",");
             if (dado.length == 8) {
-                Produto produto = new Produto();
-                produto.setCodigo(dado[0]);
-                produto.setNome(dado[1]);
-                produto.setDescricao(dado[2]);
-                produto.setPreco(dado[3].trim());
-                produto.setMarca(dado[4]);
-                produto.setQuantidade(dado[5]);
-                produto.setCnpj(dado[6]);
-                produto.setMatricula(dado[7]);
+                Produto produto = toProduto(dado);
                 lista.add(produto);
             }
 
@@ -82,21 +92,13 @@ public class DaoProduto extends DaoAbstract {
     @Override
     public List<Produto> listarProdutos() {
         Persistencia p = fabrica.criaPersistencia();
-        String vetor[] = p.select("SELECT *FROM PRODUTO", "codigo_produto, nome, descricao, preco, marca, quantidade, cnpj, matricula, tipo").split(";");
+        String vetor[] = p.select("SELECT *FROM PRODUTO", "idproduto, nome, descricao, preco, marca, quantidade, cnpj, matricula, tipo").split(";");
         Produto produto;
-        List<Produto> lista = new ArrayList<>();
+        List<Produto> lista = new ArrayList();
         for (String str : vetor) {
             String dado[] = str.split(",");
             if (dado.length == 9) {
-                produto = new Produto();
-                produto.setCodigo(dado[0]);
-                produto.setNome(dado[1]);
-                produto.setDescricao(dado[2]);
-                produto.setPreco(dado[3]);
-                produto.setMarca(dado[4]);
-                produto.setQuantidade(dado[5]);
-                produto.setCnpj(dado[6]);
-                produto.setMatricula(dado[7]);
+                produto = toProduto(dado);
                 produto.setTipo(dado[8]);
                 lista.add(produto);
             }
@@ -107,10 +109,10 @@ public class DaoProduto extends DaoAbstract {
 
     @Override
     public boolean existe(Produto produto) {
-        String[] result = persistencia.select("select codigo_produto from produto where codigo_produto=" + produto.getCodigo(), "codigo_produto").split(";");
+        String[] result = persistencia.select("select idproduto from produto where idproduto=" + produto.getIdproduto(), "idproduto").split(";");
         for (String str : result) {
             String[] dado = str.split(",");
-            if (dado[0].equals(produto.getCodigo())) {
+            if (dado[0].equals(produto.getIdproduto())) {
                 return true;
             }
         }
@@ -118,10 +120,10 @@ public class DaoProduto extends DaoAbstract {
     }
 
     @Override
-    public boolean existe(String codigo_produto) {
-        String[] result = persistencia.select("select codigo_produto from produto where codigo_produto='" + codigo_produto + "'", "codigo_produto").split(";");
+    public boolean existe(String idproduto) {
+        String[] result = persistencia.select("select idproduto from produto where idproduto='" + idproduto + "'", "idproduto").split(";");
         for (String str : result) {
-            if (str.equals(codigo_produto)) {
+            if (str.equals(idproduto)) {
                 return true;
             }
         }
@@ -130,7 +132,7 @@ public class DaoProduto extends DaoAbstract {
 
     @Override
     public boolean excluirTodos() {
-        return persistencia.executar("Delete FROM PRODUTO") && persistencia.executar("ALTER SEQUENCE produto_codigo_produto_seq RESTART WITH 1;");
+        return persistencia.executar("Delete FROM PRODUTO") && persistencia.executar("ALTER SEQUENCE produto_idproduto_seq RESTART WITH 1;");
     }
 
 }
