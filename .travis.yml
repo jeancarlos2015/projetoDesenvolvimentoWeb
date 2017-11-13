@@ -1,12 +1,21 @@
-
 language: java
+dist: trusty
+sudo: false
 jdk:
   - oraclejdk8
+#before_install:
+#- chmod +x mvnw
+
 addons:
-  postgresql: "9.4" 
-services:
-  - postgresql
-  
-before_script:
-  - psql -c "CREATE DATABASE bancoSistex;" -U postgres
-  - psql -c "CREATE USER jean WITH PASSWORD 'ifes';" -U postgres
+  sonarcloud:
+    organization: "interfaceusuario"
+    token:
+      secure: "$SONAR_KEY_INTERFACE"
+script:
+  #- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
+  - sonar-scanner
+deploy:
+ provider: heroku
+ api-key:
+  secure: $HEROKU_SONAR
+ app: interfacesistex
